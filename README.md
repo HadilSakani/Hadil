@@ -1,5 +1,7 @@
 # Hadil AlSakani — Portfolio
 
+**Live site:** <https://hadilsakani.github.io/Hadil/>
+
 A bilingual (Arabic / English) personal portfolio for **Hadil Amer Jamal
 AlSakani**, software engineering student and UX/UI designer, Gaza — Palestine.
 
@@ -62,6 +64,9 @@ src/
 public/
   images/                  project imagery (public/images/…)
   assets/                  the published CV (public/assets/cv.pdf)
+  .nojekyll                keeps Pages from running Jekyll
+.github/
+  workflows/deploy.yml     build + deploy to GitHub Pages on push to main
 ```
 
 ## Language handling
@@ -77,16 +82,32 @@ public/
 
 ## Publishing on GitHub Pages
 
-The build uses a **relative base** (`base: './'`), so `dist/` works unchanged
-from any Pages subpath — for this repository that is
-`https://hadilsakani.github.io/Hadil/`.
+**Live:** <https://hadilsakani.github.io/Hadil/>
 
-To publish: build, then push `dist/` to a `gh-pages` branch (or add a GitHub
-Actions workflow that does it). Nothing is published by this repository as it
-stands — publishing is a deliberate step.
+Deployment is automatic. `.github/workflows/deploy.yml` runs on every push to
+`main` (and on manual dispatch) and does: `npm ci` → `npm run lint` →
+`npm run build` → upload `dist/` → `actions/deploy-pages`.
 
-If a custom domain is added later, replace the relative base with the domain
-path in `vite.config.js`.
+The build uses a **relative base** (`base: './'`), so the same `dist/` works
+under any Pages subpath and under a custom domain without a rebuild. Vite
+outputs its hashed bundles to `bundle/` rather than `assets/`, leaving
+`assets/` free for the CV PDF that the site links to directly.
+
+One-time setup, already applied to this repository:
+
+1. **Repository → Settings → Pages → Source: GitHub Actions.** GitHub only
+   offers Pages for private repositories on a paid plan; this repository is
+   public.
+2. Nothing else — no `gh-pages` branch, no committed build output, no secrets.
+   The workflow authenticates through the `GITHUB_TOKEN` that GitHub injects,
+   using the `pages: write` and `id-token: write` permissions declared in it.
+
+To redeploy without a code change, open *Actions → Deploy to GitHub Pages →
+Run workflow*. The first deployment after enabling Pages can take a minute to
+go live; later pushes are usually visible within ~30 seconds.
+
+If a custom domain is added later, add it under Settings → Pages and create a
+`public/CNAME` file — the relative base keeps working unchanged.
 
 ## The CV download button
 
